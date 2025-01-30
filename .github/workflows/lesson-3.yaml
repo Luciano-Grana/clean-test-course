@@ -4,9 +4,21 @@ on:
   push:
     branches:
       - lesson-3
+
 jobs:
-  deploy:
-    needs: [function_test]
+  function_test:  # Define the function_test job here
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install
+      - name: Run functional tests
+        run: npm test -- --coverage --watchAll=false
+
+  deploy:  # Define the deploy job here
+    needs: [function_test]  # Ensure deploy depends on function_test
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -18,13 +30,3 @@ jobs:
         run: zip -r deploy.zip build Dockerfile
       - name: '**PLACEHOLDER** Deploy to Elastic Beanstalk'
         run: echo Placeholder for Deployment
-        function_test:
-          runs-on: ubuntu-latest 
-          defaults:
-            run:
-              working-directory: frontend
-          steps:
-            - uses: actions/checkout@v4
-            - run: npm install
-            - name: Run functional tests
-              run: npm test -- --coverage --watchAll=false 
